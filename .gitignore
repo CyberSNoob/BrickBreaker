@@ -39,3 +39,4 @@ build/
 
 ### exclude files ###
 FillArrayClass.java
+.idea
