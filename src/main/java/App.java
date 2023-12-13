@@ -1,8 +1,7 @@
-import java.awt.*;
-
 public class App {
 
     public static void run(){
-        new BrickAreaGenerator(new Dimension(600, 300));
+        new GameFrame();
+//        new WallAreaGenerator(new Dimension(500,300));
     }
 }

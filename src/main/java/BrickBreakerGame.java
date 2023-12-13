@@ -1,6 +1,8 @@
+import java.awt.EventQueue;
+
 public class BrickBreakerGame {
 
     public static void main(String[] args) {
-        App.run();
+        EventQueue.invokeLater(App::run);
     }
 }
