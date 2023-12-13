@@ -1,2 +1,6 @@
-package PACKAGE_NAME;public class BrickBreaker {
+public class BrickBreakerGame {
+
+    public static void main(String[] args) {
+        App.run();
+    }
 }

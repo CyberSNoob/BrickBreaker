@@ -5,7 +5,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class MapGenerator {
+public class BrickAreaGenerator {
 
     private List<List<Integer>> map;
     private final int MIN_VALUE = 0;
@@ -14,7 +14,7 @@ public class MapGenerator {
     private int brickWidth;
     private int brickHeight;
 
-    public MapGenerator(Dimension brickArea){
+    public BrickAreaGenerator(Dimension brickArea){
         brickWidth = (int) (brickArea.getWidth()/COL_COUNT);
         brickHeight = (int) (brickArea.getHeight()/ROW_COUNT);
     }
