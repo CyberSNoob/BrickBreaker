@@ -7,64 +7,72 @@ import java.util.stream.IntStream;
 
 public class WallGenerator {
 
-    private List<List<Integer>> map;
     private final int MIN_VALUE = 0;
-    private final int ROW_COUNT = 5;
-    private final int COL_COUNT = 10;
     private final int PADDING = 30;
+    private List<List<Integer>> map;
     private final RectangleDimension wallArea;
     private final RectangleDimension brickDimension;
+    private final RectangleDimension brickDimensionLeft;
 
-    public WallGenerator(Dimension wallArea){
-        this.wallArea = adjustWallAreaDimension(wallArea);
-        this.brickDimension = new RectangleDimension(
-                (this.wallArea.width / COL_COUNT), (this.wallArea.height / ROW_COUNT));
-        System.out.printf("Brick width = %d, height = %d\n", brickDimension.width, brickDimension.height);
+    public WallGenerator(Dimension panelDimension, int rows, int cols){
+        wallArea = adjustWallAreaDimension(panelDimension);
 //    set how to fillMap and which method to use
-        fillMapWithFixedValue(1);
+        fillMapWithFixedValue(rows, cols, 1);
+        brickDimensionLeft = new RectangleDimension(wallArea.width() % map.get(0).size(), wallArea.height() % map.size());
+        brickDimension = new RectangleDimension(wallArea.width() / map.get(0).size(), wallArea.height() / map.size());
+        System.out.printf("Brick width = %d, height = %d\n", brickDimension.width(), brickDimension.height());
     }
 
-    public RectangleDimension adjustWallAreaDimension(Dimension wallArea){
-        double width = wallArea.getWidth() - (2*PADDING);
-        double height = (wallArea.getHeight()/2) - (2*PADDING);
+    public RectangleDimension adjustWallAreaDimension(Dimension panelDimension){
+        int halfPanelHeight = 2;
+        double width = panelDimension.getWidth() - (2*PADDING);
+        double height = (panelDimension.getHeight() / halfPanelHeight) - (2*PADDING);
         System.out.printf("Wall width = %.2f, height = %.2f\n", width, height);
         return new RectangleDimension((int) width, (int) height);
     }
 
     public void draw(Graphics2D g) {
         drawWall(g);
+        drawWallLines(g);
+    }
+
+    private void drawWallLines(Graphics2D g) {
         g.setStroke(new BasicStroke(2));
         g.setColor(Color.WHITE);
-//        drawrect for every brick
-        for (int i = 0; i < map.size(); i++) {
-            for (int j = 0; j < map.get(i).size(); j++){
-                g.drawRect(j*brickDimension.width+PADDING, i*brickDimension.height+PADDING,
-                        brickDimension.width, brickDimension.height);
+        for (int row = 0; row < map.size(); row++) {
+            for (int column = 0; column < map.get(row).size(); column++){
+                g.drawRect(column*brickDimension.width()+PADDING, row*brickDimension.height()+PADDING,
+                        brickDimension.width(), brickDimension.height());
             }
         }
     }
 
-    public void drawWall(Graphics2D g){
+    private void drawWall(Graphics2D g){
         g.setColor(Color.RED);
-        RectangleDimension brickDimensionShort = new RectangleDimension(
-                wallArea.width%COL_COUNT, wallArea.height%ROW_COUNT);
-        g.fillRect(PADDING, PADDING,
-                wallArea.width-brickDimensionShort.width, wallArea.height-brickDimensionShort.height);
+        g.fillRect(PADDING, PADDING, wallArea.width() - brickDimensionLeft.width(), wallArea.height() - brickDimensionLeft.height());
     }
 
-    public void fillMapWithFixedValue(int fixedValue) {
-        fillMap(i -> Math.max(MIN_VALUE, fixedValue));
+    public void fillMapWithFixedValue(int rows, int cols, int fixedValue) {
+        fillMap(i -> Math.max(MIN_VALUE, fixedValue), rows, cols);
     }
 
-    public void fillMapWithRandomNumbers(int minBoundary, int maxBoundary){
+    public void fillMapWithRandomNumbers(int rows, int cols, int minBoundary, int maxBoundary){
         Random random = new Random();
-        fillMap(i -> random.nextInt(minBoundary,maxBoundary));
+        fillMap(i -> random.nextInt(minBoundary,maxBoundary), rows, cols);
     }
 
-    public void fillMapWithSequentialNumbers(){
-        this.map = IntStream.range(MIN_VALUE, ROW_COUNT)
-                .mapToObj(i -> IntStream.range(MIN_VALUE, COL_COUNT)
+    public void fillMapWithSequentialNumbers(int rows, int cols){
+        this.map = IntStream.range(MIN_VALUE, rows)
+                .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
                         .boxed().collect(Collectors.toList()))
+                .collect(Collectors.toList());
+    }
+
+    private void fillMap(Function<Integer, Integer> elementGenerator, int rows, int cols) {
+        this.map = IntStream.range(MIN_VALUE, rows)
+                .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
+                        .mapToObj(elementGenerator::apply)
+                        .collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
 
@@ -72,27 +80,6 @@ public class WallGenerator {
         this.map.forEach(System.out::println);
     }
 
-    public List<List<Integer>> getMap(){
-        return this.map;
-    }
-
-    public RectangleDimension getWallArea() {
-        return wallArea;
-    }
-
-    public RectangleDimension getRectangleDimension() {
-        return brickDimension;
-    }
-
-    private void fillMap(Function<Integer, Integer> elementGenerator) {
-        this.map = IntStream.range(MIN_VALUE, ROW_COUNT)
-                .mapToObj(i -> IntStream.range(MIN_VALUE, COL_COUNT)
-                        .mapToObj(elementGenerator::apply)
-                        .collect(Collectors.toList()))
-                .collect(Collectors.toList());
-    }
-
-    private record RectangleDimension(int width, int height) {}
 }
 
 

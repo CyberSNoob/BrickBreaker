@@ -12,7 +12,7 @@ public class GameFrame extends JFrame {
     public void setUpFrame(){
         this.setTitle("Game Frame");
         this.setMinimumSize(FRAME_SIZE);
-        this.setResizable(true);
+        this.setResizable(false);
         this.add(new GamePane());
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
