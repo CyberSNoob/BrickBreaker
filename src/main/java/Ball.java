@@ -4,6 +4,7 @@ public class Ball {
 
     private Coordinate c;
     private int ballSize;
+    private int velocity;
     private Color color;
 
     public Ball(Coordinate c, int ballSize, Color color) {
@@ -16,7 +17,7 @@ public class Ball {
 
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics2D g) {
         g.setColor(color);
         g.fillOval(c.getX(), c.getY(), ballSize, ballSize);
     }

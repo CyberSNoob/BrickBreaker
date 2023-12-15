@@ -5,28 +5,29 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class WallGenerator {
+public class Wall {
 
     private final int MIN_VALUE = 0;
     private final int PADDING = 30;
     private List<List<Integer>> map;
     private final RectangleDimension wallArea;
-    private final RectangleDimension brickDimension;
-    private final RectangleDimension brickDimensionLeft;
+    private final RectangleDimension brickSize;
+    private final RectangleDimension leftoverBrickSize;
 
-    public WallGenerator(Dimension panelDimension, int rows, int cols){
+    public Wall(Dimension panelDimension, int rows, int cols){
         wallArea = adjustWallAreaDimension(panelDimension);
 //    set how to fillMap and which method to use
         fillMapWithFixedValue(rows, cols, 1);
-        brickDimensionLeft = new RectangleDimension(wallArea.width() % map.get(0).size(), wallArea.height() % map.size());
-        brickDimension = new RectangleDimension(wallArea.width() / map.get(0).size(), wallArea.height() / map.size());
-        System.out.printf("Brick width = %d, height = %d\n", brickDimension.width(), brickDimension.height());
+        leftoverBrickSize = new RectangleDimension(wallArea.width() % map.get(0).size(), wallArea.height() % map.size());
+        brickSize = new RectangleDimension(wallArea.width() / map.get(0).size(), wallArea.height() / map.size());
+
+        System.out.printf("Brick width = %d, height = %d\n", brickSize.width(), brickSize.height());
     }
 
-    public RectangleDimension adjustWallAreaDimension(Dimension panelDimension){
-        int halfPanelHeight = 2;
-        double width = panelDimension.getWidth() - (2*PADDING);
-        double height = (panelDimension.getHeight() / halfPanelHeight) - (2*PADDING);
+    public RectangleDimension adjustWallAreaDimension(Dimension panelSize){
+        int two = 2;
+        double width = panelSize.getWidth() - (two*PADDING);
+        double height = (panelSize.getHeight() / two) - (two*PADDING);
         System.out.printf("Wall width = %.2f, height = %.2f\n", width, height);
         return new RectangleDimension((int) width, (int) height);
     }
@@ -41,15 +42,16 @@ public class WallGenerator {
         g.setColor(Color.WHITE);
         for (int row = 0; row < map.size(); row++) {
             for (int column = 0; column < map.get(row).size(); column++){
-                g.drawRect(column*brickDimension.width()+PADDING, row*brickDimension.height()+PADDING,
-                        brickDimension.width(), brickDimension.height());
+                g.drawRect(column* brickSize.width()+PADDING, row* brickSize.height()+PADDING,
+                        brickSize.width(), brickSize.height());
             }
         }
     }
 
     private void drawWall(Graphics2D g){
         g.setColor(Color.RED);
-        g.fillRect(PADDING, PADDING, wallArea.width() - brickDimensionLeft.width(), wallArea.height() - brickDimensionLeft.height());
+        g.fillRect(PADDING, PADDING,wallArea.width() - leftoverBrickSize.width(),
+                wallArea.height() - leftoverBrickSize.height());
     }
 
     public void fillMapWithFixedValue(int rows, int cols, int fixedValue) {
