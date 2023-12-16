@@ -5,31 +5,29 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Wall {
+public class Wall extends Rectangle{
 
     private final int MIN_VALUE = 0;
     private final int PADDING = 30;
     private List<List<Integer>> map;
-    private final RectangleDimension wallArea;
     private final RectangleDimension brickSize;
     private final RectangleDimension leftoverBrickSize;
 
-    public Wall(Dimension panelDimension, int rows, int cols){
-        wallArea = adjustWallAreaDimension(panelDimension);
-//    set how to fillMap and which method to use
+    public Wall(Rectangle wallZone, int rows, int cols){
+        setUpWall(wallZone);
         fillMapWithFixedValue(rows, cols, 1);
-        leftoverBrickSize = new RectangleDimension(wallArea.width() % map.get(0).size(), wallArea.height() % map.size());
-        brickSize = new RectangleDimension(wallArea.width() / map.get(0).size(), wallArea.height() / map.size());
-
-        System.out.printf("Brick width = %d, height = %d\n", brickSize.width(), brickSize.height());
+        brickSize = new RectangleDimension(this.width / map.get(0).size(),
+                this.height / map.size());
+        leftoverBrickSize = new RectangleDimension(this.width % map.get(0).size(),
+                this.height % map.size());
     }
 
-    public RectangleDimension adjustWallAreaDimension(Dimension panelSize){
+    public void setUpWall(Rectangle wallZone){
         int two = 2;
-        double width = panelSize.getWidth() - (two*PADDING);
-        double height = (panelSize.getHeight() / two) - (two*PADDING);
-        System.out.printf("Wall width = %.2f, height = %.2f\n", width, height);
-        return new RectangleDimension((int) width, (int) height);
+        this.x = PADDING;
+        this.y = PADDING;
+        this.width = wallZone.width - (two*PADDING);
+        this.height = wallZone.height - (two*PADDING);
     }
 
     public void draw(Graphics2D g) {
@@ -42,7 +40,7 @@ public class Wall {
         g.setColor(Color.WHITE);
         for (int row = 0; row < map.size(); row++) {
             for (int column = 0; column < map.get(row).size(); column++){
-                g.drawRect(column* brickSize.width()+PADDING, row* brickSize.height()+PADDING,
+                g.drawRect(column * brickSize.width()+PADDING, row * brickSize.height()+PADDING,
                         brickSize.width(), brickSize.height());
             }
         }
@@ -50,8 +48,8 @@ public class Wall {
 
     private void drawWall(Graphics2D g){
         g.setColor(Color.RED);
-        g.fillRect(PADDING, PADDING,wallArea.width() - leftoverBrickSize.width(),
-                wallArea.height() - leftoverBrickSize.height());
+        g.fillRect(PADDING, PADDING, this.width - leftoverBrickSize.width(),
+                this.height - leftoverBrickSize.height());
     }
 
     public void fillMapWithFixedValue(int rows, int cols, int fixedValue) {

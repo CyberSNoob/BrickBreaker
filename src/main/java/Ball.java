@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.Random;
 
 public class Ball {
 
@@ -13,7 +14,16 @@ public class Ball {
         this.color = color;
     }
 
-    public void move(int x, int y) {
+    public Ball(Rectangle zone, int ballSize, Color color) {
+        this.ballSize = ballSize;
+        int padding = 2 * this.ballSize;
+        Random r = new Random();
+        this.c = new Coordinate(r.nextInt(padding, zone.width - ballSize - padding),
+                r.nextInt(zone.y, zone.y + zone.height - ballSize));
+        this.color = color;
+    }
+
+    public void move(Coordinate c) {
 
     }
 
