@@ -8,9 +8,11 @@ import java.util.function.Consumer;
 public class GamePane extends JPanel implements ActionListener {
 
     private Map<String, Rectangle> zones;
+    private Rectangle boundaries;
     private Wall wall;
     private Ball ball;
     private Player player;
+    private Timer t;
 
     public GamePane(){
         SwingUtilities.invokeLater(this::lazyInitialize);
@@ -28,23 +30,23 @@ public class GamePane extends JPanel implements ActionListener {
     }
 
     public void lazyInitialize() {
-        if(wall == null) {
-            separateZones();
-            createWall();
-            createBall(20, Color.YELLOW);
-            createPlayer();
-            setKeyBindings();
-        }
+        boundaries = new Rectangle(0, 0, this.getWidth(), this.getHeight());
+        separateZones();
+        createWall();
+        createBall(20, Color.YELLOW);
+        createPlayer();
+        setKeyBindings();
+        t.start();
     }
 
     private void separateZones(){
         int startingPoint = 0, two = 2;
-        int halfPanel = this.getHeight() / two;
+        int halfPanel = boundaries.height / two;
         int quarterPanel = halfPanel / two;
         zones = new HashMap<>();
-        zones.put("wall", new Rectangle(startingPoint, startingPoint, this.getWidth(), halfPanel));
-        zones.put("ball", new Rectangle(startingPoint, halfPanel, this.getWidth(), quarterPanel));
-        zones.put("player", new Rectangle(startingPoint, halfPanel+quarterPanel, this.getWidth(), quarterPanel));
+        zones.put("wall", new Rectangle(startingPoint, startingPoint, boundaries.width, halfPanel));
+        zones.put("ball", new Rectangle(startingPoint, halfPanel, boundaries.width, quarterPanel));
+        zones.put("player", new Rectangle(startingPoint, halfPanel+quarterPanel, boundaries.width, quarterPanel));
     }
 
     public void createWall(){
@@ -53,7 +55,12 @@ public class GamePane extends JPanel implements ActionListener {
     }
 
     public void createBall(int ballSize, Color color){
-        this.ball = new Ball(zones.get("ball"), ballSize, color);
+        int initialVelocity = 40;
+        this.ball = new Ball(zones.get("ball"), ballSize, initialVelocity, color);
+        t = new Timer(ball.getVelocity(), e -> {
+            ball.move(boundaries);
+            repaint();
+        });
     }
 
     public void createPlayer(){
@@ -62,7 +69,7 @@ public class GamePane extends JPanel implements ActionListener {
 
     private void paintBackground(Graphics2D g) {
         g.setColor(Color.black);
-        g.fillRect(0,0, this.getWidth(),this.getHeight());
+        g.fillRect(0,0, boundaries.width, boundaries.height);
     }
 
     @Override
