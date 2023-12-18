@@ -23,7 +23,7 @@ public class GamePane extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-//        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         paintBackground(g2);
         wall.draw(g2);
         player.draw(g2);
@@ -31,6 +31,7 @@ public class GamePane extends JPanel implements ActionListener {
             ball.draw(g2);
 //            checkHasLost();
         }
+        g.dispose();
     }
 
     public void lazyInitialize() {
@@ -62,7 +63,8 @@ public class GamePane extends JPanel implements ActionListener {
             if(ball != null) return;
             int initialVelocity = 100;
             this.ball = new Ball(zones.get("ball"), ballSize, initialVelocity, color);
-            timer = new Timer(ball.getVelocity(), e -> {
+            setDoubleBuffered(true);
+            timer = new Timer(1000/60, e -> {
                 ball.move(boundaries);
                 System.out.println(ball.getCoordinate().toString());
                 repaint();

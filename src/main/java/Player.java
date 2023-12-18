@@ -4,17 +4,17 @@ import java.util.function.Consumer;
 
 public class Player extends Rectangle{
 
-    private Rectangle zone;
+    private Rectangle playerZone;
     private Color color;
     private int moveSpace = 60;
 
     public Player(Rectangle playerZone, Color color){
-        this.zone = playerZone;
+        this.playerZone = playerZone;
         int two = 2, playerSizeRatio = 5;
-        this.width = this.zone.width / playerSizeRatio;
-        this.x = this.zone.width / two - this.width / two;
-        this.height = this.zone.height / playerSizeRatio;
-        this.y = this.zone.y + this.zone.height / two;
+        this.width = this.playerZone.width / playerSizeRatio;
+        this.x = this.playerZone.width / two - this.width / two;
+        this.height = this.playerZone.height / playerSizeRatio;
+        this.y = this.playerZone.y + this.playerZone.height / two;
         this.color = color;
     }
 
@@ -25,7 +25,7 @@ public class Player extends Rectangle{
     public Consumer<ActionEvent> moveRight() {
         return e -> {
             int totalWidth = this.x + this.width + moveSpace;
-            this.x = totalWidth > this.zone.width ? this.zone.width - this.width : this.x + moveSpace;
+            this.x = totalWidth > this.playerZone.width ? this.playerZone.width - this.width : this.x + moveSpace;
         };
     }
 
