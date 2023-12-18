@@ -6,7 +6,7 @@ public class Player extends Rectangle{
 
     private Rectangle zone;
     private Color color;
-    private int moveSpace = 100;
+    private int moveSpace = 60;
 
     public Player(Rectangle playerZone, Color color){
         this.zone = playerZone;

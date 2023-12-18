@@ -18,27 +18,35 @@ public class Ball {
                 r.nextInt(padding, zone.width - ballSize - padding),
                 r.nextInt(zone.y, zone.y + zone.height - ballSize));
         this.color = color;
+//        this.direction = new Coordinate(
+//                r.nextBoolean() ? ballSize : -ballSize,
+//                r.nextBoolean() ? -ballSize : +ballSize);
         this.direction = new Coordinate(
-                r.nextBoolean() ? ballSize : -ballSize,
-                r.nextBoolean() ? -ballSize : +ballSize);
+                r.nextBoolean() ? ballSize : -ballSize, ballSize);
+        System.out.println(c.toString());
     }
 
     public void move(Rectangle boundaries) {
-        c.setX(c.getX() + direction.getX());
-        if(c.getX() <= boundaries.x) {
+        int nextXPos = c.getX() + direction.getX();
+        int nextYPos = c.getY() + direction.getY();
+        int margin = 5;
+
+        c.setX(nextXPos);
+        if(nextXPos <= boundaries.x || nextXPos <= margin) {
             c.setX(boundaries.x);
             direction.setX(Math.abs(direction.getX()));
-        }else if(c.getX() + ballSize >= boundaries.width){
-            c.setX(boundaries.width - direction.getX() - ballSize);
+        }else if(nextXPos + ballSize > boundaries.width || (boundaries.width - nextXPos) - ballSize <= margin){
+            c.setX(boundaries.width - ballSize);
             direction.setX(-direction.getX());
         }
 
-        c.setY(c.getY() + direction.getY());
-        if(c.getY() <= boundaries.y){
+        c.setY(nextYPos);
+        if(nextYPos < boundaries.y || nextYPos <= margin){
             c.setY(boundaries.y);
             direction.setY(Math.abs(direction.getY()));
-        }else if(c.getY() + ballSize >= boundaries.height){
-            c.setY(boundaries.height - direction.getY() - ballSize);
+        }else if(nextYPos + ballSize > boundaries.height || (boundaries.height - nextYPos) - ballSize <= margin){
+            System.out.println("Called Y once");
+            c.setY(boundaries.height - ballSize);
             direction.setY(-direction.getY());
         }
     }
@@ -54,5 +62,13 @@ public class Ball {
 
     public int getVelocity() {
         return velocity;
+    }
+
+    public Coordinate getCoordinate() {
+        return c;
+    }
+
+    public int getBallSize() {
+        return ballSize;
     }
 }
