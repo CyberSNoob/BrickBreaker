@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 public class GamePane extends JPanel implements ActionListener {
 
     private Map<String, Rectangle> zones;
-    private Rectangle boundaries;
     private Wall wall;
     private Ball ball;
     private Player player;
@@ -29,28 +28,26 @@ public class GamePane extends JPanel implements ActionListener {
         player.draw(g2);
         if(ball != null) {
             ball.draw(g2);
-//            checkHasLost();
+            checkHasLost();
         }
         g.dispose();
     }
 
     public void lazyInitialize() {
-        boundaries = new Rectangle(0, 0, this.getWidth(), this.getHeight());
         separateZones();
         createWall();
         createPlayer();
         setKeyBindings();
-        System.out.println(boundaries);
     }
 
     private void separateZones(){
-        int startingPoint = 0, two = 2;
-        int halfPanel = boundaries.height / two;
+        int two = 2;
+        int halfPanel = getHeight() / two;
         int quarterPanel = halfPanel / two;
         zones = new HashMap<>();
-        zones.put("wall", new Rectangle(startingPoint, startingPoint, boundaries.width, halfPanel));
-        zones.put("ball", new Rectangle(startingPoint, halfPanel, boundaries.width, quarterPanel));
-        zones.put("player", new Rectangle(startingPoint, halfPanel+quarterPanel, boundaries.width, quarterPanel));
+        zones.put("wall", new Rectangle(0, 0, getWidth(), halfPanel));
+        zones.put("ball", new Rectangle(0, halfPanel, getWidth(), quarterPanel));
+        zones.put("player", new Rectangle(0, halfPanel+quarterPanel, getWidth(), quarterPanel));
     }
 
     public void createWall(){
@@ -58,15 +55,14 @@ public class GamePane extends JPanel implements ActionListener {
         wall = new Wall(zones.get("wall"), rows, cols);
     }
 
-    public Consumer<ActionEvent> createBall(int ballSize, Color color){
+    public Consumer<ActionEvent> createBall(Color color)  {
         return action -> {
             if(ball != null) return;
             int initialVelocity = 100;
-            this.ball = new Ball(zones.get("ball"), ballSize, initialVelocity, color);
+            this.ball = new Ball(zones.get("ball"), initialVelocity, color);
             setDoubleBuffered(true);
-            timer = new Timer(1000/60, e -> {
-                ball.move(boundaries);
-                System.out.println(ball.getCoordinate().toString());
+            timer = new Timer(1000/16, e -> {
+                ball.move(getBounds(), player);
                 repaint();
             });
             timer.start();
@@ -80,13 +76,14 @@ public class GamePane extends JPanel implements ActionListener {
 
     private void paintBackground(Graphics2D g) {
         g.setColor(Color.black);
-        g.fillRect(0,0, boundaries.width, boundaries.height);
+        g.fillRect(0,0, getWidth(), getHeight());
     }
 
     private void checkHasLost(){
-        if(ball.getCoordinate().getY() >= getHeight() - ball.getBallSize()) {
+        if(ball.getBounds().y >= getHeight() - ball.getBallSize()) {
             timer.stop();
             hasStarted = !hasStarted;
+            player.setInitialPosition();
             ball = null;
         }
     }
@@ -97,7 +94,7 @@ public class GamePane extends JPanel implements ActionListener {
     private void setKeyBindings(){
         setPlayerDirectionKeyBindings(KeyEvent.VK_LEFT, "moveLeft", player.moveLeft());
         setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, "moveRight", player.moveRight());
-        setPlayerDirectionKeyBindings(KeyEvent.VK_SPACE, "startGame", createBall(20, Color.YELLOW));
+        setPlayerDirectionKeyBindings(KeyEvent.VK_SPACE, "startGame", createBall(Color.YELLOW));
     }
 
     private void setPlayerDirectionKeyBindings(int keyDirection, String keyStrokeId, Consumer<ActionEvent> action){

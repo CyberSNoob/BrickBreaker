@@ -7,6 +7,7 @@ public class Player extends Rectangle{
     private Rectangle playerZone;
     private Color color;
     private int moveSpace = 60;
+    private Coordinate initialPosition;
 
     public Player(Rectangle playerZone, Color color){
         this.playerZone = playerZone;
@@ -16,6 +17,7 @@ public class Player extends Rectangle{
         this.height = this.playerZone.height / playerSizeRatio;
         this.y = this.playerZone.y + this.playerZone.height / two;
         this.color = color;
+        this.initialPosition = new Coordinate(x,y);
     }
 
     public Consumer<ActionEvent> moveLeft(){
@@ -37,4 +39,8 @@ public class Player extends Rectangle{
         g.drawRect(this.x, this.y, this.width, this.height);
     }
 
+    public void setInitialPosition() {
+        this.x = initialPosition.getX();
+        this.y = initialPosition.getY();
+    }
 }
