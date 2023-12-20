@@ -20,13 +20,14 @@ public class Ball extends Rectangle{
         setInitialDirection();
     }
 
+//    TODO: player side and corners detection
     public void move(Rectangle panelBoundaries, Player player) {
         int nextXPos = this.x + direction.getX();
         int nextYPos = this.y + direction.getY();
         int maxY = player.y - BALL_SIZE;
 
         if(willCollideWithPlayer(player)){
-            System.out.println(player.getBounds() + ", " + this);
+            System.out.println(player.getBounds().getLocation() + ", " + getLocation());
             if(this.y >= maxY) direction.setY(-direction.getY());
             setLocation(nextXPos, maxY);
         }else{

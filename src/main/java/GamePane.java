@@ -24,7 +24,7 @@ public class GamePane extends JPanel implements ActionListener {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         paintBackground(g2);
-        wall.draw(g2);
+        if(wall != null) wall.draw(g2);
         player.draw(g2);
         if(ball != null) {
             ball.draw(g2);
@@ -38,6 +38,7 @@ public class GamePane extends JPanel implements ActionListener {
         createWall();
         createPlayer();
         setKeyBindings();
+        setFocusable(true);
     }
 
     private void separateZones(){
@@ -51,23 +52,22 @@ public class GamePane extends JPanel implements ActionListener {
     }
 
     public void createWall(){
-        int rows = 8,  cols = 10;
+        int rows = 8, cols = 10;
         wall = new Wall(zones.get("wall"), rows, cols);
     }
 
-    public Consumer<ActionEvent> createBall(Color color)  {
-        return action -> {
-            if(ball != null) return;
-            int initialVelocity = 100;
-            this.ball = new Ball(zones.get("ball"), initialVelocity, color);
-            setDoubleBuffered(true);
-            timer = new Timer(1000/16, e -> {
-                ball.move(getBounds(), player);
-                repaint();
-            });
-            timer.start();
-            hasStarted = true;
-        };
+    public void createBall(Color color)  {
+        if(ball != null) return;
+        int initialVelocity = 100;
+        this.ball = new Ball(zones.get("ball"), initialVelocity, color);
+        setDoubleBuffered(true);
+        timer = new Timer(1000/16, e -> {
+            player.update();
+            ball.move(getBounds(), player);
+            repaint();
+        });
+        timer.start();
+        hasStarted = true;
     }
 
     public void createPlayer(){
@@ -92,13 +92,18 @@ public class GamePane extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {}
 
     private void setKeyBindings(){
-        setPlayerDirectionKeyBindings(KeyEvent.VK_LEFT, "moveLeft", player.moveLeft());
-        setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, "moveRight", player.moveRight());
-        setPlayerDirectionKeyBindings(KeyEvent.VK_SPACE, "startGame", createBall(Color.YELLOW));
+        setPlayerDirectionKeyBindings(KeyEvent.VK_LEFT, false, e -> player.setXDirection(-player.getSpeed()));
+        setPlayerDirectionKeyBindings(KeyEvent.VK_LEFT, true, e -> player.setXDirection(0));
+        setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, false, e -> player.setXDirection(player.getSpeed()));
+        setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, true, e -> player.setXDirection(0));
+        setPlayerDirectionKeyBindings(KeyEvent.VK_SPACE, false, e -> createBall(Color.YELLOW));
+//        setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, "moveRight", player.moveRight());
     }
 
-    private void setPlayerDirectionKeyBindings(int keyDirection, String keyStrokeId, Consumer<ActionEvent> action){
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(keyDirection, 0), keyStrokeId);
+    private void setPlayerDirectionKeyBindings(int keyDirection, boolean onKeyRelease, Consumer<ActionEvent> action){
+        String keyStrokeId = String.format("keyStroke_%d_%b", keyDirection, onKeyRelease);
+        KeyStroke ks = KeyStroke.getKeyStroke(keyDirection, 0, onKeyRelease);
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ks, keyStrokeId);
         getActionMap().put(keyStrokeId, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -9,17 +9,17 @@ public class Wall extends Rectangle{
 
     private final int MIN_VALUE = 0;
     private final int PADDING = 30;
-    private List<List<Integer>> map;
+    private List<List<Integer>> bricks;
     private final RectangleDimension brickSize;
-    private final RectangleDimension leftoverBrickSize;
+//    private final RectangleDimension leftoverBrickSize;
 
     public Wall(Rectangle wallZone, int rows, int cols){
         setUpWall(wallZone);
         fillMapWithFixedValue(rows, cols, 1);
-        brickSize = new RectangleDimension(this.width / map.get(0).size(),
-                this.height / map.size());
-        leftoverBrickSize = new RectangleDimension(this.width % map.get(0).size(),
-                this.height % map.size());
+        brickSize = new RectangleDimension(this.width / bricks.get(0).size(),
+                this.height / bricks.size());
+//        leftoverBrickSize = new RectangleDimension(this.width % map.get(0).size(),
+//                this.height % map.size());
     }
 
     public void setUpWall(Rectangle wallZone){
@@ -35,21 +35,43 @@ public class Wall extends Rectangle{
         drawWallLines(g);
     }
 
+    @FunctionalInterface
+    public interface DrawAction{
+        void apply(Graphics2D g2, int row, int col);
+    }
+
+    private void loopThroughBricks(Graphics2D g2, DrawAction action){
+
+    }
+
     private void drawWallLines(Graphics2D g) {
         g.setStroke(new BasicStroke(2));
-        g.setColor(Color.WHITE);
-        for (int row = 0; row < map.size(); row++) {
-            for (int column = 0; column < map.get(row).size(); column++){
-                g.drawRect(column * brickSize.width()+PADDING, row * brickSize.height()+PADDING,
-                        brickSize.width(), brickSize.height());
+        g.setColor(Color.BLACK);
+        for (int row = 0; row < bricks.size(); row++) {
+            for (int column = 0; column < bricks.get(row).size(); column++){
+                int x = PADDING + (column * brickSize.width());
+                int y = (row * brickSize.height()) + PADDING;
+                g.drawRect(x, y, brickSize.width(), brickSize.height());
             }
         }
     }
 
     private void drawWall(Graphics2D g){
-        g.setColor(Color.RED);
-        g.fillRect(PADDING, PADDING, this.width - leftoverBrickSize.width(),
-                this.height - leftoverBrickSize.height());
+        Random r = new Random();
+        IntStream.range(MIN_VALUE, bricks.size()).forEach(row -> {
+            IntStream.range(MIN_VALUE, bricks.get(row).size()).forEach(col -> {
+                g.setColor(WallColor.getRandomColor(r));
+                g.fillRect(PADDING+col*brickSize.width(), PADDING+row* brickSize.height(),
+                        brickSize.width(), brickSize.height());
+            });
+        });
+//        for (int row = 0; row < map.size(); row++) {
+//            for (int column = 0; column < map.get(row).size(); column++){
+//                g.setColor(randomColor(r));
+//                g.fillRect(PADDING+column*brickSize.width(), PADDING+row* brickSize.height(),
+//                        brickSize.width(), brickSize.height());
+//            }
+//        }
     }
 
     public void fillMapWithFixedValue(int rows, int cols, int fixedValue) {
@@ -62,14 +84,14 @@ public class Wall extends Rectangle{
     }
 
     public void fillMapWithSequentialNumbers(int rows, int cols){
-        this.map = IntStream.range(MIN_VALUE, rows)
+        this.bricks = IntStream.range(MIN_VALUE, rows)
                 .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
                         .boxed().collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
 
     private void fillMap(Function<Integer, Integer> elementGenerator, int rows, int cols) {
-        this.map = IntStream.range(MIN_VALUE, rows)
+        this.bricks = IntStream.range(MIN_VALUE, rows)
                 .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
                         .mapToObj(elementGenerator::apply)
                         .collect(Collectors.toList()))
@@ -77,7 +99,7 @@ public class Wall extends Rectangle{
     }
 
     public void printResults(){
-        this.map.forEach(System.out::println);
+        this.bricks.forEach(System.out::println);
     }
 
 }
