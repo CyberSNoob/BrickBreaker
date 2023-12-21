@@ -48,6 +48,7 @@ public class GamePane extends JPanel implements ActionListener {
     private void startGame() {
         if(!isRunning){
             player.setInitialPosition();
+            wall.resetState();
             createBall();
             timer = new Timer(1000/16, e -> {
                 updateGame();

@@ -3,6 +3,7 @@ package gameObjects;
 import dataClasses.Coordinate;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Random;
 
 public class Ball extends Rectangle{
@@ -36,11 +37,12 @@ public class Ball extends Rectangle{
         int nextYPos = this.y + direction.getY();
         int maxY = player.y - BALL_SIZE;
 
-        if(willCollideWithPlayer(player)){
+        if(willCollideWith(player)){
             System.out.println(player.getBounds().getLocation() + ", " + getLocation());
             if(this.y >= maxY) direction.setY(-direction.getY());
             setLocation(nextXPos, maxY);
-        }else{
+        }
+        else{
             int margin = 5;
             Coordinate nextPos = new Coordinate(nextXPos, nextYPos);
             if(nextPos.getX() <= panelBoundaries.x || nextPos.getX() <= margin) {
@@ -73,14 +75,29 @@ public class Ball extends Rectangle{
         g.fillOval(this.x, this.y, BALL_SIZE, BALL_SIZE);
     }
 
-    public boolean willCollideWithPlayer(Player player){
+    public boolean willCollideWith(Rectangle obj){
+        return nextPosition().intersects(obj.getBounds());
+    }
+
+    private Rectangle nextPosition(){
         Rectangle tempNextPos = this;
         tempNextPos.setLocation(tempNextPos.x+direction.getX(), tempNextPos.y+direction.getY());
-        return tempNextPos.intersects(player.getBounds());
+        return tempNextPos;
     }
 
     public boolean outOfBound(int panelHeight){
         return this.y >= panelHeight - BALL_SIZE;
+    }
+
+    public boolean WillCollideWith(Wall wall){
+        boolean willCollide = false;
+        List<List<Brick>> bricks = wall.getBricks();
+        for (List<Brick> row : bricks) {
+            for (Brick brick : row) {
+                willCollide = nextPosition().intersects(brick.getBounds());
+            }
+        }
+        return willCollide;
     }
 
 }

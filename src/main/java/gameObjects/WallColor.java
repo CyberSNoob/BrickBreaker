@@ -24,17 +24,14 @@ public enum WallColor {
 //    RED_VIOLET(new Color(199, 21, 133));
 
     private final Color color;
+    private static final Random r = new Random();
     WallColor(Color color) {
         this.color = color;
     }
 
-    private Color getRandomColor() {
-        return color;
-    }
-
-    public static Color getRandomColor(Random r){
+    public static Color getRandomColor(){
         WallColor[] colors = WallColor.values();
-        return colors[r.nextInt(colors.length)].getRandomColor();
+        return colors[r.nextInt(colors.length)].color;
     }
 
     private Color allRandomColor(Random r) {
