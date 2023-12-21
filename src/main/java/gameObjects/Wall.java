@@ -1,3 +1,8 @@
+package gameObjects;
+
+import dataClasses.Coordinate;
+import dataClasses.RectangleDimension;
+
 import java.awt.*;
 import java.util.List;
 import java.util.Random;

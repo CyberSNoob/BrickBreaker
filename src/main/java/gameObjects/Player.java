@@ -1,3 +1,7 @@
+package gameObjects;
+
+import dataClasses.Coordinate;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Set;

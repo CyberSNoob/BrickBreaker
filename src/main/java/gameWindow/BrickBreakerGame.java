@@ -1,3 +1,5 @@
+package gameWindow;
+
 import java.awt.EventQueue;
 
 public class BrickBreakerGame {

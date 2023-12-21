@@ -1,3 +1,9 @@
+package gameWindow;
+
+import gameObjects.Ball;
+import gameObjects.Player;
+import gameObjects.Wall;
+
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
@@ -12,7 +18,7 @@ public class GamePane extends JPanel implements ActionListener {
     private Ball ball;
     private Player player;
     private Timer timer;
-    private boolean hasStarted = false;
+    private boolean isRunning = false;
 
     public GamePane(){
         SwingUtilities.invokeLater(this::lazyInitialize);
@@ -24,12 +30,9 @@ public class GamePane extends JPanel implements ActionListener {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         paintBackground(g2);
-        if(wall != null) wall.draw(g2);
+        wall.draw(g2);
         player.draw(g2);
-        if(ball != null) {
-            ball.draw(g2);
-            checkHasLost();
-        }
+        if(ball != null) ball.draw(g2);
         g.dispose();
     }
 
@@ -39,6 +42,35 @@ public class GamePane extends JPanel implements ActionListener {
         createPlayer();
         setKeyBindings();
         setFocusable(true);
+        setDoubleBuffered(true);
+    }
+
+    private void startGame() {
+        if(!isRunning){
+            player.setInitialPosition();
+            createBall();
+            timer = new Timer(1000/16, e -> {
+                updateGame();
+            });
+            timer.start();
+            isRunning = true;
+        }
+    }
+
+    private void updateGame(){
+        player.update();
+        if(ball != null) {
+            ball.move(getBounds(), player);
+            checkHasLost();
+        }
+        repaint();
+    }
+
+    private void checkHasLost(){
+        if(ball.outOfBound(getHeight())) {
+            timer.stop();
+            isRunning = !isRunning;
+        }
     }
 
     private void separateZones(){
@@ -56,18 +88,8 @@ public class GamePane extends JPanel implements ActionListener {
         wall = new Wall(zones.get("wall"), rows, cols);
     }
 
-    public void createBall(Color color)  {
-        if(ball != null) return;
-        int initialVelocity = 100;
-        this.ball = new Ball(zones.get("ball"), initialVelocity, color);
-        setDoubleBuffered(true);
-        timer = new Timer(1000/16, e -> {
-            player.update();
-            ball.move(getBounds(), player);
-            repaint();
-        });
-        timer.start();
-        hasStarted = true;
+    public void createBall()  {
+        this.ball = new Ball(zones.get("ball"));
     }
 
     public void createPlayer(){
@@ -79,25 +101,16 @@ public class GamePane extends JPanel implements ActionListener {
         g.fillRect(0,0, getWidth(), getHeight());
     }
 
-    private void checkHasLost(){
-        if(ball.getBounds().y >= getHeight() - ball.getBallSize()) {
-            timer.stop();
-            hasStarted = !hasStarted;
-            player.setInitialPosition();
-            ball = null;
-        }
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {}
 
+//    TODO: adjust player key bindings to ensure smooth movement
     private void setKeyBindings(){
         setPlayerDirectionKeyBindings(KeyEvent.VK_LEFT, false, e -> player.setXDirection(-player.getSpeed()));
         setPlayerDirectionKeyBindings(KeyEvent.VK_LEFT, true, e -> player.setXDirection(0));
         setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, false, e -> player.setXDirection(player.getSpeed()));
         setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, true, e -> player.setXDirection(0));
-        setPlayerDirectionKeyBindings(KeyEvent.VK_SPACE, false, e -> createBall(Color.YELLOW));
-//        setPlayerDirectionKeyBindings(KeyEvent.VK_RIGHT, "moveRight", player.moveRight());
+        setPlayerDirectionKeyBindings(KeyEvent.VK_SPACE, false, e -> startGame());
     }
 
     private void setPlayerDirectionKeyBindings(int keyDirection, boolean onKeyRelease, Consumer<ActionEvent> action){

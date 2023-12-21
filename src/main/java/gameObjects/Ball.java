@@ -1,23 +1,33 @@
+package gameObjects;
+
+import dataClasses.Coordinate;
+
 import java.awt.*;
 import java.util.Random;
 
 public class Ball extends Rectangle{
 
     private final int BALL_SIZE = 20;
-    private int velocity;
-    private final Color color;
+    private Color color;
     private Coordinate direction;
     private final Random r = new Random();
 
-    public Ball(Rectangle zone, int velocity, Color color) {
-        this.velocity = velocity;
+    public Ball(Rectangle zone, Color color) {
+        setRandomPosition(zone);
+        setInitialDirection();
+        this.color = color;
+    }
+
+    public Ball(Rectangle zone){
+        this(zone, Color.YELLOW);
+    }
+
+    private void setRandomPosition(Rectangle zone){
         int padding = 2 * BALL_SIZE;
 //        TODO: set ball moving towards player
         int randomX = r.nextInt(padding, zone.width - BALL_SIZE - padding);
         int randomY = r.nextInt(zone.y, zone.y + zone.height - BALL_SIZE);
         setBounds(randomX, randomY, BALL_SIZE, BALL_SIZE);
-        this.color = color;
-        setInitialDirection();
     }
 
 //    TODO: player side and corners detection
@@ -52,7 +62,7 @@ public class Ball extends Rectangle{
     }
 
     private void setInitialDirection() {
-//        this.direction = new Coordinate(
+//        this.direction = new dataClasses.Coordinate(
 //                r.nextBoolean() ? ballSize : -ballSize,
 //                r.nextBoolean() ? -ballSize : +ballSize);
         this.direction = new Coordinate(r.nextBoolean() ? BALL_SIZE : -BALL_SIZE, BALL_SIZE);
@@ -69,8 +79,8 @@ public class Ball extends Rectangle{
         return tempNextPos.intersects(player.getBounds());
     }
 
-    public int getBallSize() {
-        return BALL_SIZE;
+    public boolean outOfBound(int panelHeight){
+        return this.y >= panelHeight - BALL_SIZE;
     }
 
 }
