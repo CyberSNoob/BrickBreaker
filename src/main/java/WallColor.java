@@ -9,14 +9,17 @@ public enum WallColor {
     YELLOW(new Color(255, 255, 0)),
     BLUE(new Color(0, 0, 255)),
     ORANGE(new Color(255, 165, 0)),
-    GREEN(new Color(0, 128, 0)),
     VIOLET(new Color(128, 0, 128)),
-    RED_ORANGE(new Color(255, 69, 0)),
-    YELLOW_ORANGE(new Color(255, 215, 0)),
-    YELLOW_GREEN(new Color(154, 205, 50)),
-    BLUE_GREEN(new Color(0, 100, 0)),
-    BLUE_VIOLET(new Color(138, 43, 226)),
-    RED_VIOLET(new Color(199, 21, 133));
+    CYAN(Color.CYAN),
+    GREEN(Color.GREEN);
+
+//    GREEN(new Color(0, 128, 0)),
+//    RED_ORANGE(new Color(255, 69, 0)),
+//    YELLOW_ORANGE(new Color(255, 215, 0)),
+//    YELLOW_GREEN(new Color(154, 205, 50)),
+//    BLUE_GREEN(new Color(0, 100, 0)),
+//    BLUE_VIOLET(new Color(138, 43, 226)),
+//    RED_VIOLET(new Color(199, 21, 133));
 
     private final Color color;
     WallColor(Color color) {

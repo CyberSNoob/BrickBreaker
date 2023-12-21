@@ -9,17 +9,15 @@ public class Wall extends Rectangle{
 
     private final int MIN_VALUE = 0;
     private final int PADDING = 30;
-    private List<List<Integer>> bricks;
+    private List<List<Rectangle>> bricks;
     private final RectangleDimension brickSize;
 //    private final RectangleDimension leftoverBrickSize;
 
     public Wall(Rectangle wallZone, int rows, int cols){
         setUpWall(wallZone);
-        fillMapWithFixedValue(rows, cols, 1);
-        brickSize = new RectangleDimension(this.width / bricks.get(0).size(),
-                this.height / bricks.size());
-//        leftoverBrickSize = new RectangleDimension(this.width % map.get(0).size(),
-//                this.height % map.size());
+        brickSize = new RectangleDimension(this.width / cols,this.height / rows);
+        buildWall(rows, cols);
+//        leftoverBrickSize = new RectangleDimension(this.width % cols, this.height % rows);
     }
 
     public void setUpWall(Rectangle wallZone){
@@ -41,7 +39,11 @@ public class Wall extends Rectangle{
     }
 
     private void loopThroughBricks(Graphics2D g2, DrawAction action){
-
+        IntStream.range(MIN_VALUE, bricks.size()).forEach(row -> {
+            IntStream.range(MIN_VALUE, bricks.get(row).size()).forEach(col -> {
+                action.apply(g2, row, col);
+            });
+        });
     }
 
     private void drawWallLines(Graphics2D g) {
@@ -49,8 +51,8 @@ public class Wall extends Rectangle{
         g.setColor(Color.BLACK);
         for (int row = 0; row < bricks.size(); row++) {
             for (int column = 0; column < bricks.get(row).size(); column++){
-                int x = PADDING + (column * brickSize.width());
-                int y = (row * brickSize.height()) + PADDING;
+                int x = this.x + (column * brickSize.width());
+                int y = this.y + (row * brickSize.height());
                 g.drawRect(x, y, brickSize.width(), brickSize.height());
             }
         }
@@ -61,42 +63,40 @@ public class Wall extends Rectangle{
         IntStream.range(MIN_VALUE, bricks.size()).forEach(row -> {
             IntStream.range(MIN_VALUE, bricks.get(row).size()).forEach(col -> {
                 g.setColor(WallColor.getRandomColor(r));
-                g.fillRect(PADDING+col*brickSize.width(), PADDING+row* brickSize.height(),
+                g.fillRect(this.x + (col*brickSize.width()), this.y + (row* brickSize.height()),
                         brickSize.width(), brickSize.height());
             });
         });
-//        for (int row = 0; row < map.size(); row++) {
-//            for (int column = 0; column < map.get(row).size(); column++){
-//                g.setColor(randomColor(r));
-//                g.fillRect(PADDING+column*brickSize.width(), PADDING+row* brickSize.height(),
-//                        brickSize.width(), brickSize.height());
-//            }
-//        }
     }
 
-    public void fillMapWithFixedValue(int rows, int cols, int fixedValue) {
-        fillMap(i -> Math.max(MIN_VALUE, fixedValue), rows, cols);
+    private void buildWall(int rows, int cols) {
+        Function<Coordinate, Rectangle> generator = c -> {
+            Coordinate brickPosition = new Coordinate(
+                    this.x + (c.getX()*brickSize.width()), this.y + (c.getY()* brickSize.height()));
+            return new Rectangle(brickPosition.getX(), brickPosition.getY());
+        };
+        fillWall(generator, rows, cols);
     }
 
-    public void fillMapWithRandomNumbers(int rows, int cols, int minBoundary, int maxBoundary){
-        Random random = new Random();
-        fillMap(i -> random.nextInt(minBoundary,maxBoundary), rows, cols);
-    }
-
-    public void fillMapWithSequentialNumbers(int rows, int cols){
+    private void fillWall(Function<Coordinate, Rectangle> elementGenerator, int rows, int cols) {
         this.bricks = IntStream.range(MIN_VALUE, rows)
-                .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
-                        .boxed().collect(Collectors.toList()))
-                .collect(Collectors.toList());
-    }
-
-    private void fillMap(Function<Integer, Integer> elementGenerator, int rows, int cols) {
-        this.bricks = IntStream.range(MIN_VALUE, rows)
-                .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
-                        .mapToObj(elementGenerator::apply)
+                .mapToObj(row -> IntStream.range(MIN_VALUE, cols)
+                        .mapToObj(col -> elementGenerator.apply(new Coordinate(col, row)))
                         .collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
+
+//    public void fillWallWithRandomNumbers(int rows, int cols, int minBoundary, int maxBoundary){
+//        Random random = new Random();
+//        fillWall(i -> random.nextInt(minBoundary,maxBoundary), rows, cols);
+//    }
+
+//    public void fillWallWithSequentialNumbers(int rows, int cols){
+//        this.bricks = IntStream.range(MIN_VALUE, rows)
+//                .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
+//                        .boxed().collect(Collectors.toList()))
+//                .collect(Collectors.toList());
+//    }
 
     public void printResults(){
         this.bricks.forEach(System.out::println);
