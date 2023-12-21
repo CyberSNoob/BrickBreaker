@@ -11,13 +11,11 @@ public class Wall extends Rectangle{
     private final int PADDING = 30;
     private List<List<Rectangle>> bricks;
     private final RectangleDimension brickSize;
-//    private final RectangleDimension leftoverBrickSize;
 
     public Wall(Rectangle wallZone, int rows, int cols){
         setUpWall(wallZone);
         brickSize = new RectangleDimension(this.width / cols,this.height / rows);
         buildWall(rows, cols);
-//        leftoverBrickSize = new RectangleDimension(this.width % cols, this.height % rows);
     }
 
     public void setUpWall(Rectangle wallZone){
@@ -35,37 +33,30 @@ public class Wall extends Rectangle{
 
     @FunctionalInterface
     public interface DrawAction{
-        void apply(Graphics2D g2, int row, int col);
+        void apply(int x, int y);
     }
 
-    private void loopThroughBricks(Graphics2D g2, DrawAction action){
+    private void loopThroughBricks(DrawAction action){
         IntStream.range(MIN_VALUE, bricks.size()).forEach(row -> {
             IntStream.range(MIN_VALUE, bricks.get(row).size()).forEach(col -> {
-                action.apply(g2, row, col);
+                int x = this.x + (col * brickSize.width());
+                int y = this.y + (row * brickSize.height());
+                action.apply(x,y);
             });
         });
     }
 
-    private void drawWallLines(Graphics2D g) {
-        g.setStroke(new BasicStroke(2));
-        g.setColor(Color.BLACK);
-        for (int row = 0; row < bricks.size(); row++) {
-            for (int column = 0; column < bricks.get(row).size(); column++){
-                int x = this.x + (column * brickSize.width());
-                int y = this.y + (row * brickSize.height());
-                g.drawRect(x, y, brickSize.width(), brickSize.height());
-            }
-        }
+    private void drawWallLines(Graphics2D g2) {
+        g2.setStroke(new BasicStroke(2));
+        g2.setColor(Color.BLACK);
+        loopThroughBricks((x, y) -> g2.drawRect(x, y, brickSize.width(), brickSize.height()));
     }
 
     private void drawWall(Graphics2D g){
         Random r = new Random();
-        IntStream.range(MIN_VALUE, bricks.size()).forEach(row -> {
-            IntStream.range(MIN_VALUE, bricks.get(row).size()).forEach(col -> {
-                g.setColor(WallColor.getRandomColor(r));
-                g.fillRect(this.x + (col*brickSize.width()), this.y + (row* brickSize.height()),
-                        brickSize.width(), brickSize.height());
-            });
+        loopThroughBricks((x, y) -> {
+            g.setColor(WallColor.getRandomColor(r));
+            g.fillRect(x, y, brickSize.width(), brickSize.height());
         });
     }
 
@@ -85,18 +76,6 @@ public class Wall extends Rectangle{
                         .collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
-
-//    public void fillWallWithRandomNumbers(int rows, int cols, int minBoundary, int maxBoundary){
-//        Random random = new Random();
-//        fillWall(i -> random.nextInt(minBoundary,maxBoundary), rows, cols);
-//    }
-
-//    public void fillWallWithSequentialNumbers(int rows, int cols){
-//        this.bricks = IntStream.range(MIN_VALUE, rows)
-//                .mapToObj(i -> IntStream.range(MIN_VALUE, cols)
-//                        .boxed().collect(Collectors.toList()))
-//                .collect(Collectors.toList());
-//    }
 
     public void printResults(){
         this.bricks.forEach(System.out::println);
