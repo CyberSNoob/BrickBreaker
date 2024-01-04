@@ -1,6 +1,7 @@
 package gameWindow;
 
 import gameObjects.Ball;
+import gameObjects.CollisionDetector;
 import gameObjects.Player;
 import gameObjects.Wall;
 
@@ -17,8 +18,9 @@ public class GamePane extends JPanel implements ActionListener {
     private Wall wall;
     private Ball ball;
     private Player player;
+    private CollisionDetector collisionDetector;
     private Timer timer;
-    private boolean isRunning = false;
+    private static boolean isRunning = false;
 
     public GamePane(){
         SwingUtilities.invokeLater(this::lazyInitialize);
@@ -45,12 +47,22 @@ public class GamePane extends JPanel implements ActionListener {
         setDoubleBuffered(true);
     }
 
+    private void resetWallState(){
+        if(wall.isFirstGame()) {
+            wall.setFirstGame(false);
+        }else{
+            wall.initializeWallColor();
+        }
+    }
+
     private void startGame() {
         if(!isRunning){
+//            TODO: first time it changes color twice
+            resetWallState();
             player.setInitialPosition();
-            wall.resetState();
             createBall();
-            timer = new Timer(1000/16, e -> {
+            collisionDetector = new CollisionDetector(getBounds(), getGameComponents());
+            timer = new Timer(1000/8, e -> {
                 updateGame();
             });
             timer.start();
@@ -60,18 +72,25 @@ public class GamePane extends JPanel implements ActionListener {
 
     private void updateGame(){
         player.update();
-        if(ball != null) {
-            ball.move(getBounds(), player);
-            checkHasLost();
-        }
+//        collision detection
+        collisionDetector.checkForCollision();
+        checkHasLost();
         repaint();
     }
 
     private void checkHasLost(){
         if(ball.outOfBound(getHeight())) {
             timer.stop();
-            isRunning = !isRunning;
+            isRunning = false;
         }
+    }
+
+    public Map<String, Rectangle> getGameComponents(){
+        Map<String, Rectangle> gc = new HashMap<>();
+        gc.put("wall", wall);
+        gc.put("ball", ball);
+        gc.put("player", player);
+        return gc;
     }
 
     private void separateZones(){
@@ -81,7 +100,7 @@ public class GamePane extends JPanel implements ActionListener {
         zones = new HashMap<>();
         zones.put("wall", new Rectangle(0, 0, getWidth(), halfPanel));
         zones.put("ball", new Rectangle(0, halfPanel, getWidth(), quarterPanel));
-        zones.put("player", new Rectangle(0, halfPanel+quarterPanel, getWidth(), quarterPanel));
+        zones.put("player", new Rectangle(0, halfPanel + quarterPanel, getWidth(), quarterPanel));
     }
 
     public void createWall(){

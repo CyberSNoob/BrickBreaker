@@ -23,28 +23,28 @@ public class Player extends Rectangle{
         this.height = this.playerZone.height / playerSizeRatio;
         this.y = this.playerZone.y + this.playerZone.height / two;
         Player.color = color;
-        this.initialPosition = new Coordinate(x,y);
+        this.initialPosition = new Coordinate(this.x, this.y);
     }
 
-    public Consumer<ActionEvent> moveLeft(){
-        return e -> this.x = Math.max(this.x - directionX, 0);
-    }
+//    public Consumer<ActionEvent> moveLeft(){
+//        return e -> this.x = Math.max(this.x - directionX, 0);
+//    }
+//
+//    public Consumer<ActionEvent> moveRight() {
+//        return e -> {
+//            int totalWidth = this.x + this.width + directionX;
+//            this.x = totalWidth > this.playerZone.width ? this.playerZone.width - this.width : this.x + directionX;
+//        };
+//    }
+//
+//    public void move(Set<Integer> keyPressed){
+//
+//    }
 
-    public Consumer<ActionEvent> moveRight() {
-        return e -> {
-            int totalWidth = this.x + this.width + directionX;
-            this.x = totalWidth > this.playerZone.width ? this.playerZone.width - this.width : this.x + directionX;
-        };
-    }
-
-    public void move(Set<Integer> keyPressed){
-
-    }
-
+//    same as player move
     public void update(){
-//        if directionX exceeds x, set to 0
         int nextPos = this.x + directionX;
-        if (nextPos < 0) {
+        if (nextPos <= 0) {
             this.x = 0;
         }else if(nextPos+this.width > playerZone.width){
             this.x = this.playerZone.width - this.width;
@@ -66,8 +66,7 @@ public class Player extends Rectangle{
     }
 
     public void setInitialPosition() {
-        this.x = initialPosition.getX();
-        this.y = initialPosition.getY();
+        this.setLocation(initialPosition.getX(), initialPosition.getY());
     }
 
     public int getSpeed() {

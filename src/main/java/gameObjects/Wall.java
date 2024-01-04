@@ -9,27 +9,26 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Wall extends Rectangle{
+public class Wall extends Rectangle implements Shape{
 
     private final int MIN_VALUE = 0;
-    private final int PADDING = 30;
     private List<List<Brick>> bricks;
     private final RectangleDimension brickSize;
-    private boolean isBeginning;
+    private boolean firstGame = true;
 
     public Wall(Rectangle wallZone, int rows, int cols){
-        resetState();
         setUpWall(wallZone);
         brickSize = new RectangleDimension(this.width / cols,this.height / rows);
         buildWall(rows, cols);
+        initializeWallColor();
     }
 
     private void setUpWall(Rectangle wallZone){
-        int two = 2;
-        this.x = PADDING;
-        this.y = PADDING;
-        this.width = wallZone.width - (two*PADDING);
-        this.height = wallZone.height - (two*PADDING);
+        int two = 2, padding = 30;
+        this.x = padding;
+        this.y = padding;
+        this.width = wallZone.width - (two* padding);
+        this.height = wallZone.height - (two* padding);
     }
 
     public void draw(Graphics2D g) {
@@ -57,23 +56,18 @@ public class Wall extends Rectangle{
         loopThroughBricks(brick -> g2.drawRect(brick.x, brick.y, brick.width, brick.height));
     }
 
-    private void drawWall(Graphics2D g){
-        if(isBeginning){
-            loopThroughBricks(brick -> {
+    public void initializeWallColor(){
+        loopThroughBricks(brick -> {
 //            initially black, then get random color once. if not hit, do nothing
-                brick.setColor(WallColor.getRandomColor());
-                g.setColor(brick.getColor());
-                g.fillRect(brick.x, brick.y, brick.width, brick.height);
-            });
-            isBeginning = !isBeginning;
-        }else{
-//            if collision detected, paint black
-            loopThroughBricks(brick -> {
-                g.setColor(brick.getColor());
-                g.fillRect(brick.x, brick.y, brick.width, brick.height);
-            });
-        }
+            brick.setColor(WallColor.getRandomColor());
+        });
+    }
 
+    private void drawWall(Graphics2D g){
+        loopThroughBricks(brick -> {
+            g.setColor(brick.getColor());
+            g.fillRect(brick.x, brick.y, brick.width, brick.height);
+        });
     }
 
     private void buildWall(int rows, int cols) {
@@ -97,8 +91,12 @@ public class Wall extends Rectangle{
         return bricks;
     }
 
-    public void resetState() {
-        isBeginning = true;
+    public boolean isFirstGame() {
+        return firstGame;
+    }
+
+    public void setFirstGame(boolean firstGame) {
+        this.firstGame = firstGame;
     }
 }
 
