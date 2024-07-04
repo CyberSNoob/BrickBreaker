@@ -1,20 +1,13 @@
 package dataClasses;
 
+import java.awt.*;
+
 public class Coordinate {
 
     private int x, y;
 
     public Coordinate(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+        updatePosition(x, y);
     }
 
     public int getX() {
@@ -23,6 +16,26 @@ public class Coordinate {
 
     public int getY() {
         return y;
+    }
+
+    public void reverseX(){
+        if(x == 0) return;
+        x = x < 0 ? Math.abs(x) : -x;
+    }
+
+    public void reverseY(){
+        if(y == 0) return;
+        y = y < 0 ? Math.abs(y) : -y;
+    }
+
+    public void updatePosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void updatePosition(Point p){
+        this.x = p.x;
+        this.y = p.y;
     }
 
     @Override

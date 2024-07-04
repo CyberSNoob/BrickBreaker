@@ -1,8 +1,5 @@
 package gameObjects;
 
-import dataClasses.Coordinate;
-import gameWindow.GamePane;
-
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
@@ -20,28 +17,37 @@ public class CollisionDetector {
         this.ball = (Ball) gc.get("ball");
     }
 
-    public void checkForCollision(){
-        if(willCollideWith(player)){
-            ball.bounceOffPlayer(player);
-        }else {
+    public void detect(){
+        if(willCollideWith(panelBoundaries)){
             ball.bounceOffBoundaries(panelBoundaries);
         }
+        if(willCollideWith(player)){
+            ball.bounceOffPlayer(player);
+        }
+        if(willCollideWith(wall)){}
 
     }
 
+//    if it doesn't collide, how much distance left till next collision
     public boolean willCollideWith(Rectangle obj){
         boolean willCollide = false;
+        Rectangle nextPos = ball.getNextPosition();
         if(obj instanceof Wall){
             List<List<Brick>> bricks = ((Wall) obj).getBricks();
             for (List<Brick> row : bricks) {
                 for (Brick brick : row) {
-                    willCollide = ball.nextPosition().intersects(brick.getBounds());
+//                    needs adjustment
+                    willCollide = nextPos.intersects(brick.getBounds());
+                    if(willCollide) break;
                 }
             }
         }
-//        else if(obj instanceof Player){
-//            willCollide = ball.nextPosition().intersects(obj.getBounds());
-//        };
+        else if(obj instanceof Player){
+            willCollide = nextPos.intersects(obj.getBounds()) || nextPos.y+ball.height == obj.y;
+        }else if(obj == panelBoundaries){
+            willCollide = nextPos.x <= panelBoundaries.x || nextPos.y <= panelBoundaries.y ||
+                    nextPos.x+ball.width >= panelBoundaries.width;
+        }
         return willCollide;
     }
 }

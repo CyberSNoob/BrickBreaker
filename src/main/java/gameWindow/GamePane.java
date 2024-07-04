@@ -21,6 +21,7 @@ public class GamePane extends JPanel implements ActionListener {
     private CollisionDetector collisionDetector;
     private Timer timer;
     private static boolean isRunning = false;
+    private boolean isFirstGame = true;
 
     public GamePane(){
         SwingUtilities.invokeLater(this::lazyInitialize);
@@ -48,8 +49,8 @@ public class GamePane extends JPanel implements ActionListener {
     }
 
     private void resetWallState(){
-        if(wall.isFirstGame()) {
-            wall.setFirstGame(false);
+        if(isFirstGame) {
+            isFirstGame = false;
         }else{
             wall.initializeWallColor();
         }
@@ -57,7 +58,6 @@ public class GamePane extends JPanel implements ActionListener {
 
     private void startGame() {
         if(!isRunning){
-//            TODO: first time it changes color twice
             resetWallState();
             player.setInitialPosition();
             createBall();
@@ -72,8 +72,9 @@ public class GamePane extends JPanel implements ActionListener {
 
     private void updateGame(){
         player.update();
-//        collision detection
-        collisionDetector.checkForCollision();
+//        ball.setNextPosition();
+        collisionDetector.detect();
+        ball.move();
         checkHasLost();
         repaint();
     }

@@ -14,7 +14,6 @@ public class Wall extends Rectangle implements Shape{
     private final int MIN_VALUE = 0;
     private List<List<Brick>> bricks;
     private final RectangleDimension brickSize;
-    private boolean firstGame = true;
 
     public Wall(Rectangle wallZone, int rows, int cols){
         setUpWall(wallZone);
@@ -91,13 +90,6 @@ public class Wall extends Rectangle implements Shape{
         return bricks;
     }
 
-    public boolean isFirstGame() {
-        return firstGame;
-    }
-
-    public void setFirstGame(boolean firstGame) {
-        this.firstGame = firstGame;
-    }
 }
 
 

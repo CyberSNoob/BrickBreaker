@@ -6,21 +6,31 @@ import java.awt.*;
 import java.util.Random;
 
 public class Ball extends Rectangle{
-
     private Color color;
+    private final int SIZE = 20;
     private Coordinate direction;
     private final Random r = new Random();
+    private Rectangle nextPosition;
 
     public Ball(Rectangle zone, Color color) {
-        setRandomPosition(zone);
-        int size = 20;
-        this.setSize(size, size);
+        this.setSize(SIZE, SIZE);
         this.color = color;
-        setInitialDirection();
+        startPositionForTesting(zone);
+//        setRandomPosition(zone);
+//        setInitialDirection();
+//        setNextPosition();
     }
 
     public Ball(Rectangle zone){
         this(zone, Color.YELLOW);
+    }
+
+    private Ball(Ball copy){
+        setSize(SIZE, SIZE);
+        color = copy.color;
+        setLocation(copy.x, copy.y);
+        direction = copy.direction;
+        nextPosition = copy.nextPosition;
     }
 
     private void setInitialDirection() {
@@ -31,49 +41,67 @@ public class Ball extends Rectangle{
     }
 
     private void setRandomPosition(Rectangle zone){
-        int padding = 2 * width; // or height, is the same
+        int padding = 3 * width; // or height, is the same
 //        TODO: set ball moving towards player
         int randomX = r.nextInt(padding, zone.width - width - padding);
         int randomY = r.nextInt(zone.y, zone.y + zone.height - height);
         setBounds(randomX, randomY, width, height);
     }
 
-    public Rectangle nextPosition(){
-        Rectangle nextPos = this;
-        nextPos.translate(direction.getX(), direction.getY());
-        return nextPos;
+    private void startPositionForTesting(Rectangle zone){
+        int startX = zone.width/3;
+        setLocation(startX, zone.y+zone.height/2);
+        direction = new Coordinate(this.width, this.height);
+        setNextPosition();
     }
 
+    public void setNextPosition() {
+        Rectangle nextPos = new Rectangle(this.x, this.y, this.width, this.height);
+        nextPos.translate(direction.getX(), direction.getY());
+        this.nextPosition = nextPos;
+    }
+
+    private void adjustNextPosition(Point p){
+        nextPosition.setLocation(p);
+    }
+
+    public Rectangle getNextPosition(){
+        return nextPosition;
+    }
+
+
     public void bounceOffPlayer(Player player){
-        int nextXPos = this.nextPosition().x;
-        int maxYPos = player.y - this.height;
-        if(this.y >= maxYPos) direction.setY(-direction.getY());
-        this.translate(nextXPos, maxYPos);
+//        where: left,top, right
+        direction.reverseY();
+        int maxBallYToPlayer = player.y - this.height;
+        nextPosition.setLocation(nextPosition.x, maxBallYToPlayer);
+        adjustNextPosition(nextPosition.getLocation());
     }
 
     public void bounceOffBoundaries(Rectangle panelBoundaries){
-        int margin = 5;
-        Point nextPos = nextPosition().getLocation();
-        if(nextPos.x <= panelBoundaries.x || nextPos.x <= margin) {
+        int margin = width/3; // width same as height
+        Point nextPos = nextPosition.getLocation();
+//        if exceeded or 15 left
+        if(nextPos.x <= panelBoundaries.x || nextPos.x < margin) {
             nextPos.x = panelBoundaries.x;
-            direction.setX(Math.abs(direction.getX()));
-        }else if(nextPos.x + width > panelBoundaries.width || (panelBoundaries.width - nextPos.x) - width <= margin){
+            direction.reverseX();
+        }else if(nextPos.x + width >= panelBoundaries.width || panelBoundaries.width - (nextPos.x - width) < margin){
             nextPos.x = panelBoundaries.width - width;
-            direction.setX(-direction.getX());
+            direction.reverseX();
         }
 
-        if(nextPos.y < panelBoundaries.y || nextPos.y <= margin){
+        if(nextPos.y < panelBoundaries.y || nextPos.y < margin){
             nextPos.y = panelBoundaries.y;
-            direction.setY(Math.abs(direction.getY()));
-        }else if(nextPos.y + height > panelBoundaries.height || (panelBoundaries.height - nextPos.y) - height <= margin){
+            direction.reverseY();
+        }else if(nextPos.y + height > panelBoundaries.height || panelBoundaries.height - (nextPos.y - height) < margin){
             nextPos.y = panelBoundaries.height - height;
         }
-        this.setLocation(nextPos.x, nextPos.y);
+        adjustNextPosition(nextPos);
     }
 
-//    TODO: player side and corners detection
     public void move() {
-        this.translate(direction.getX(), direction.getY());
+        this.setLocation(nextPosition.getLocation());
+        setNextPosition();
     }
 
     public boolean outOfBound(int panelHeight){

@@ -14,16 +14,19 @@ public class Player extends Rectangle{
     private int directionX = 0;
     private Coordinate initialPosition;
     private int speed = 40;
+    private Coordinate bottomRightCorner;
 
     public Player(Rectangle playerZone, Color color){
         this.playerZone = playerZone;
         int two = 2, playerSizeRatio = 5;
         this.width = this.playerZone.width / playerSizeRatio;
-        this.x = this.playerZone.width / two - this.width / two;
         this.height = this.playerZone.height / playerSizeRatio;
+
+        this.x = this.playerZone.width / two - this.width / two;
         this.y = this.playerZone.y + this.playerZone.height / two;
         Player.color = color;
-        this.initialPosition = new Coordinate(this.x, this.y);
+        initialPosition = new Coordinate(this.x, this.y);
+        bottomRightCorner = new Coordinate(x+width, y+height);
     }
 
 //    public Consumer<ActionEvent> moveLeft(){
@@ -51,6 +54,11 @@ public class Player extends Rectangle{
         }else{
             this.x = nextPos;
         }
+        bottomRightCorner.updatePosition(x+width, y+height);
+    }
+
+    public Coordinate getBottomRightCorner(){
+        return bottomRightCorner;
     }
 
     public void setXDirection(int direction){
